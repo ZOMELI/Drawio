@@ -16,8 +16,9 @@ import lombok.Setter;
 @Data
 public class TransferDto {
 
-  private String account;
-  private String id;
-
+  private String amount;
+  private Currency currency;
+  private ChargeInformation chargeInformation;
+  private DepositInformation depositInformation;
 
 }

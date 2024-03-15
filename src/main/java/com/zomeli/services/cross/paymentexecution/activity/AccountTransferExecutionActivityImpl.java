@@ -24,7 +24,7 @@ public class AccountTransferExecutionActivityImpl implements AccountTransferExec
   public String withdraw(String accountId, String referenceId, double amount) {
     MDC.put("request.id", referenceId);
     String data = mockClient.getMock(TransferDto.builder()
-        .account("194333132")
+//        .account("194333132")
         .build());
 
     log.info(data);

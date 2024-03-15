@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.logmanager.Logger;
 import org.jboss.logmanager.MDC;
 
-@Path("/transfer")
+@Path("/temporal")
 @ApplicationScoped
 public class GreetingController {
     private static final Logger log = Logger.getLogger(String.valueOf(GreetingController.class));
