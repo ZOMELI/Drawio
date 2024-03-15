@@ -1,0 +1,44 @@
+quarkus:
+  http:
+    port: 8080
+  application:
+    name: business-accounting-transfer-execution
+  temporal:
+#    namespace: default
+    service:
+      url: localhost:7233
+#    multi-tenant:
+#      enabled: 'true'
+  tls:
+    trust-all: 'true'
+
+##################################### Rest-Client #####################################
+  rest-client:
+    client-api:
+      url: 'https://pokeapi.co/api'
+      scope: jakarta.inject.Singleton
+    client-mock:
+      url: 'https://64b0ff02062767bc48257966.mockapi.io'
+      scope: jakarta.inject.Singleton
+#####################################   logging  #####################################
+  log:
+    level: INFO
+    min-level: DEBUG
+    console:
+      format: '%d{HH:mm:ss.SSS}  %-5p [%-5l] [%X{request.id}] (%t) - %s%n'
+
+##################################### Hibernate #####################################
+  hibernate-orm:
+    sql-load-script: data.sql
+    dialect: org.hibernate.dialect.H2Dialect
+    log:
+      sql: true
+    database:
+      generation: drop-and-create
+##################################### Datasource #####################################
+  datasource:
+    db-kind: h2
+    jdbc:
+      url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
