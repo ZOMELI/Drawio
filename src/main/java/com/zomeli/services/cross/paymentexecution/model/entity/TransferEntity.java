@@ -1,4 +1,4 @@
-package com.zomeli.services.cross.paymentexecution.entity;
+package com.zomeli.services.cross.paymentexecution.model.entity;
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -6,11 +6,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity(name = "TRANSFER_ACCOUNTS")
 //@NamedQueries({
 //    @NamedQuery(name = "Person.deleteByTransactionId", query = "delete from transfer p where p.id = ?1")
@@ -25,6 +25,7 @@ public class TransferEntity {
   @Column(name = "id", columnDefinition="INT")
   private Integer id;
 
+//  @Column(name = "amount", columnDefinition="DECIMAL(11,2)", precision = 21, scale = 2, nullable = false)
   @Column(name = "amount", columnDefinition="DECIMAL(11,2)", nullable = false)
   private Double amount;
 

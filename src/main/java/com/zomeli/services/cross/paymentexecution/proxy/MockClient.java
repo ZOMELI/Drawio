@@ -1,6 +1,6 @@
 package com.zomeli.services.cross.paymentexecution.proxy;
 
-import com.zomeli.services.cross.paymentexecution.entity.TransferDto;
+import com.zomeli.services.cross.paymentexecution.model.generate.MoneyTransferRequest;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -19,7 +19,7 @@ public interface MockClient {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    String getMock(TransferDto stream);
+    String getMock(MoneyTransferRequest stream);
 }
 
 

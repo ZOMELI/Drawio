@@ -4,13 +4,10 @@ quarkus:
   application:
     name: business-accounting-transfer-execution
   temporal:
-#    namespace: default
     service:
       url: localhost:7233
-#    multi-tenant:
-#      enabled: 'true'
   tls:
-    trust-all: 'true'
+    trust-all: true
 
 ##################################### Rest-Client #####################################
   rest-client:

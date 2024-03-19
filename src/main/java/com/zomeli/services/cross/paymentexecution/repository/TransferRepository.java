@@ -1,9 +1,9 @@
 package com.zomeli.services.cross.paymentexecution.repository;
 
-import com.zomeli.services.cross.paymentexecution.entity.TransferEntity;
+import com.zomeli.services.cross.paymentexecution.model.entity.TransferEntity;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class TransferRepository implements PanacheRepository<TransferEntity>{

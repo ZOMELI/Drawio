@@ -2,6 +2,7 @@ package com.zomeli.services.cross.paymentexecution.workFlow;
 
 import com.zomeli.services.cross.paymentexecution.activity.AccountTransferExecutionActivity;
 //import io.quarkus.temporal.runtime.annotations.TemporalActivityStub;
+import com.zomeli.services.cross.paymentexecution.model.WorkFlowRequest;
 import io.quarkus.temporal.runtime.annotations.TemporalActivityStub;
 import io.quarkus.temporal.runtime.annotations.TemporalWorkflow;
 import io.temporal.failure.ActivityFailure;
@@ -22,20 +23,20 @@ public class AccountingTransferExecutionWorkFlowImpl implements AccountingTransf
   // The transfer method is the entry point to the Workflow.
   // Activity method executions can be orchestrated here or from within other Activity methods.
   @Override
-  public String initWorkFlow(String fromAccountId, String toAccountId, String referenceId,
-                             double amount) {
-    MDC.put("request.id", referenceId);
+  public String initWorkFlow(WorkFlowRequest workFlowRequest) {
+
+    MDC.put("request.id", workFlowRequest.getUuid());
     Saga.Options sagaOptions = new Saga.Options.Builder().setParallelCompensation(true).build();
     Saga saga = new Saga(sagaOptions);
     String withdrawAccount;
     String depositAccount;
 
     try {
-      withdrawAccount = activities.withdraw(fromAccountId, referenceId, amount);
-      saga.addCompensation(activities::withdrawExtortion, fromAccountId, referenceId, amount);
+      withdrawAccount = activities.withdraw(workFlowRequest.getUuid(), workFlowRequest.getTransferRequest());
+      saga.addCompensation(activities::withdrawExtortion, workFlowRequest.getUuid(), workFlowRequest.getTransferRequest());
 
-      depositAccount = activities.deposit(fromAccountId, referenceId, amount);
-      saga.addCompensation(activities::depositExtortion, fromAccountId, referenceId, amount);
+      depositAccount = activities.deposit(workFlowRequest.getUuid(), workFlowRequest.getTransferRequest());
+      saga.addCompensation(activities::depositExtortion, workFlowRequest.getUuid(), workFlowRequest.getTransferRequest());
 
     } catch (ActivityFailure e) {
       saga.compensate();

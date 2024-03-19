@@ -1,0 +1,519 @@
+openapi: 3.0.1
+info:
+  title: API Money Transfer V1
+  description: Permite realizar transferencias entre cuentas.
+  version: 3.0.0
+servers:
+  - url: /money-transfer/v1
+paths:
+  /transfer:
+    post:
+      tags:
+        - Money Transfer
+      summary: Realizar una transferencia.
+      description: |
+        ### Acerca de la funcionalidad expuesta
+
+        La funcionalidad permite lo siguiente:
+
+        - Permite realizar transferencias entre cuentas.
+
+        ### Data de Prueba
+        No Aplica.
+
+        ### Usos válidos de Query Parameters
+        No Aplica.
+
+
+        ### Variantes válidas del Payload (Cuerpo del mensaje)
+
+        Esta funcionalidad permite enviar distintos tipos de payloads dependiendo de la operación a realizar. Se tiene los siguientes casos:
+
+        ### Caso 1: Transferencia entre cuentas
+
+        ```json
+
+        {
+          "amount": 12.83,
+          "currency": {
+            "code": "USD"
+          },
+          "chargeInformation": {
+            "chargeType": {
+              "code": "CTAD"
+            },
+            "chargeAccount": {
+              "referenceId": "132411010004",
+              "currency": {
+                "code": "PEN"
+              },
+              "ChargeAccountDescription": "Descripción de la transacción"
+            }
+          },
+          "depositInformation": {
+            "depositType": {
+              "code": "CTAD"
+            },
+            "depositAccount": {
+              "referenceId": "1931459231006",
+              "currency": {
+                "code": "PEN"
+              },
+              "DepositAccountDescription": "Descripción de la transacción"
+            }
+          }
+        }
+
+        ```
+
+
+        ### Códigos de error usados en esta versión de la API
+
+        | HTTP Status | Descripción |
+        |-------------|-------------|
+        | 400 | Los datos proporcionados no son validos. |
+        | 500 | El servicio no se encuentra disponible. Por favor reintente mas tarde. |
+        | 500 | No se encontro el servidor solicitado. |
+        | 501 | Los datos proporcionados no cumplen con los criterios para ser procesado. |
+        | 500 | Ocurrio un error en el servicio externo. |
+        | 503 | Ocurrio un error intentando invocar servicios externos. Por favor reintente nuevamente. |
+        | 401 | No esta autorizado correctamente para ejecutar esta operacion. |
+        | 500 | Ocurrio un error inesperado. Por favor contactarse con el Soporte Tecnico. |
+      operationId: createAcountingTransfer
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token de Authorización
+          required: true
+          schema:
+            type: string
+            example: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsIm9
+        - name: Request-ID
+          in: header
+          description: Este campo es un valor estandar ya existente y sera usado como identificador.
+          required: true
+          schema:
+            maxLength: 36
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+            type: string
+            example: 2f132e5f-0da1-4696-bcf3-b7088e59aa4f
+        - name: request-date
+          in: header
+          description: Fecha de la petición
+          required: true
+          schema:
+            maxLength: 29
+            pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4}([a-z]|[A-Z]|\d)?$'
+            type: string
+            example: '2024-03-18T18:02:03.987-0700'
+
+        - name: opn-number
+          in: header
+          description: Número de operación en el canal
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            example: '0000005742'
+
+        - name: opn-reverse-number
+          in: header
+          description: Número de la operación que se desea revertir
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+            example: '0000005741'
+
+      requestBody:
+        description: Entrada del Servicio.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoneyTransferRequest'
+        required: true
+      responses:
+        '200':
+          description: Se validó la información correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoneyTransferResponse'
+        '400':
+          description: Los datos proporcionados no son válidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '401':
+          description: No está autorizado correctamente para ejecutar esta operación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '500':
+          description: No se encontró el servidor solicitado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '501':
+          description: Los datos proporcionados no cumplen con los criterios para ser procesado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+        '503':
+          description: 'Ocurrió un error intentando invocar servicios externos. Por favor, intente nuevamente.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+components:
+  schemas:
+
+    ApiException:
+      title: ApiException
+      type: object
+      properties:
+        code:
+          type: string
+          description: Codigo de error de Sistema
+          example: X0001
+        description:
+          type: string
+          description: Descripcion del error de Sistema
+          example: Error al consumir el servicio
+        errorType:
+          type: string
+          description: Tipo de Error de Sistema
+          example: TECHNICAL
+        exceptionDetails:
+          type: array
+          description: Lista de detalles del error
+          items:
+            $ref: '#/components/schemas/ApiExceptionDetail'
+      description: Datos del error de sistema.
+    ApiExceptionDetail:
+      title: ApiExceptionDetail
+      type: object
+      properties:
+        code:
+          type: string
+          description: Codigo de error del Detalle/Proveedor
+          example: 409
+        component:
+          type: string
+          description: Nombre del componente de falla
+          example: API Transferencias
+        description:
+          type: string
+          description: Descripcion del Detalle
+          example: Petición fallida / Codigo invalido
+      description: Datos del error técnico.
+
+    MoneyTransferHeaders:
+      type: object
+    MoneyTransferRequest:
+      required:
+        - amount
+        - chargeInformation
+        - currency
+        - depositInformation
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Importe de la Operación
+          example: 12.83
+        currency:
+          $ref: '#/components/schemas/TransactionCurrency'
+        chargeInformation:
+          $ref: '#/components/schemas/ChargeInformationRequest'
+        depositInformation:
+          $ref: '#/components/schemas/DepositInformationRequest'
+
+    TransactionCurrency:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(PEN|USD)$
+          type: string
+          description: Moneda en la que se realiza la operación
+          example: USD
+          x-technical-description: OQ-TR26-I-MON-OPE
+    ChargeInformationRequest:
+      required:
+        - chargeAccount
+        - chargeType
+      type: object
+      properties:
+        chargeType:
+          $ref: '#/components/schemas/ChargeTypeRequest'
+        chargeAccount:
+          $ref: '#/components/schemas/ChargeAccountRequest'
+        
+    ChargeTypeRequest:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(CTAD|CTBL)$
+          type: string
+          description: Código del tipo de cargo
+          example: CTAD
+    ChargeAccountRequest:
+      required:
+        - currency
+      type: object
+      properties:
+        referenceId:
+          pattern: '^\d{12,16}$'
+          type: string
+          description: Número de Cuenta de Cargo
+          example: '132411010004'
+        currency:
+          $ref: '#/components/schemas/ChargeAccountCurrency'
+        ChargeAccountDescription:
+          $ref: '#/components/schemas/Description'
+    ChargeAccountCurrency:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(PEN|USD)$
+          type: string
+          description: Código de moneda de la cuenta de cargo
+          example: PEN
+          x-technical-description: OQ-TR26-I-C-MON-MEDIO
+    Description:
+#      pattern: '^([.0-9a-zA-ZŸÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÒÓÔÕÖ×ØÙÚÛÜÝàáâãäåæçèéêëìíîïòóôõöùúûüýÿÑñáéíóúÁÉÍÓÚ]+\s)$'
+      type: string
+      description: Descripción con la que se identifica el movimiento realizado.
+      example: 'Descripción de la transacción'
+
+
+
+    DepositInformationRequest:
+      required:
+        - depositAccount
+        - depositType
+      type: object
+      properties:
+        depositType:
+          $ref: '#/components/schemas/DepositTypeRequest'
+        depositAccount:
+          $ref: '#/components/schemas/DepositAccountRequest'
+
+    DepositTypeRequest:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(CTAD|CTBL|TCRE)$
+          type: string
+          description: Tipo de abono
+          example: CTAD
+          x-technical-description: OQ-TR26-I-A-COD-ABONO
+    DepositAccountRequest:
+      required:
+        - currency
+      type: object
+      properties:
+        referenceId:
+          pattern: '^\d{12,16}$'
+          type: string
+          description: Número de Cuenta de Abono
+          example: '1931459231006'
+          x-technical-description: OQ-TR26-I-A-NRO-MEDIO
+        currency:
+          $ref: '#/components/schemas/DepositAccountCurrency'
+        DepositAccountDescription:
+          $ref: '#/components/schemas/Description'
+
+    DepositAccountCurrency:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(PEN|USD)$
+          type: string
+          description: Código de moneda de la cuenta de abono
+          example: PEN
+          x-technical-description: OQ-TR26-I-A-MON-MEDIO
+
+
+    MoneyTransferResponse:
+      type: object
+      properties:
+        accountingTransferId:
+          type: string
+          description: Número Único de la transacción para el orquestador
+          example: TC00000008000733800000
+        chargeInformation:
+          $ref: '#/components/schemas/ChargeInformationResponse'
+        depositInformation:
+          $ref: '#/components/schemas/DepositInformationResponse'
+        exchangeInformation:
+          $ref: '#/components/schemas/ExchangeInformationResponse'
+
+    ChargeInformationResponse:
+      type: object
+      properties:
+        chargeType:
+          $ref: '#/components/schemas/ChargeTypeResponse'
+        chargeAccount:
+          $ref: '#/components/schemas/ChargeAccountResponse'
+        chargeAccountbalance:
+          $ref: '#/components/schemas/ChargeAccountBalanceResponse'
+        ChargeAccountDescription:
+          $ref: '#/components/schemas/Description'
+
+    DepositInformationResponse:
+      type: object
+      properties:
+        depositType:
+          $ref: '#/components/schemas/ChargeTypeResponse'
+        depositAccount:
+          $ref: '#/components/schemas/ChargeAccountResponse'
+        depositAccountbalance:
+          $ref: '#/components/schemas/ChargeAccountBalanceResponse'
+        depositAccountDescription:
+          $ref: '#/components/schemas/Description'
+
+    ChargeTypeResponse:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          pattern: ^(CTAD|CTBL)$
+          type: string
+          description: Código tipo cuenta.
+          example: CTBL
+
+    ChargeAccountResponse:
+      type: object
+      properties:
+        referenceId:
+          type: string
+          description: Número de Cuenta.
+          example: '4099800096873481'
+        formattedAccountNumber:
+          type: string
+          description: Número de Cuenta en Formato Comercial.
+          example: 4099-8000-9687-3481
+        currency:
+          $ref: '#/components/schemas/CurrencyResponse'
+        client:
+          $ref: '#/components/schemas/ClientResponse'
+
+    CurrencyResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Código de moneda de la cuenta.
+          example: PEN
+
+    ClientResponse:
+      type: object
+      properties:
+        cic:
+          type: string
+          description: 'CIC del cliente titular de la cuenta <br/> Formato [8-11]documento [1]tipoDocumento [3]correlativo'
+          example: '674185416000'
+        fullName:
+          type: string
+          description: Nombre del cliente titular de la cuent.
+          example: Luis Prada
+        address:
+          $ref: '#/components/schemas/PersonAddressResponse'
+
+    PersonAddressResponse:
+      type: object
+      properties:
+        summary:
+          type: string
+          description: Dirección del cliente titular de la cuenta
+          example: 'C/ los pinos #456'
+        district:
+          type: string
+          description: Distrito de la dirección del cliente titular de la cuenta
+          example: 'Surco'
+        city:
+          type: string
+          description: Ciudad de la dirección del cliente titular de la cuenta
+          example: 'Lima'
+
+    ChargeAccountBalanceResponse:
+      type: object
+      properties:
+        baseAmount:
+          type: number
+          description: Importe base en la cuenta
+          example: 2000
+        accountingAmount:
+          type: number
+          description: Saldo Contable de la chargeAccountbalance
+          example: 1500.87
+        availableAmount:
+          type: number
+          description: Saldo Disponible de la Cuenta
+          example: 1500.87
+        registerDate:
+          type: string
+          description: Fecha de la transacción de abono en el Servicio Contable<br/> Formato AAAA-MM-DD o AAAA/MM/DD
+          example: '2024-03-16'
+
+    ExchangeInformationResponse:
+      type: object
+      properties:
+        exchangeId:
+          type: string
+          description: Identificador del Tipo de Cambio
+          example: '178412'
+        target:
+          $ref: '#/components/schemas/TargetResponse'
+        operationNumber:
+          type: integer
+          description: Número de operación de C/V de moneda extranjera
+          format: int32
+          example: '0000005741'
+        exchangeDate:
+          type: string
+          description: Fecha de asignación del tipo de cambio utilizado<br/> Formato AAAA-MM-DD o AAAA/MM/DD
+          example: '2024-03-16'
+        exchangeTime:
+          type: string
+          description: 'Hora de asignación del tipo de cambio utilizado (formato HH:MM:SS)'
+          example: '16:00:00'
+    TargetResponse:
+      type: object
+      properties:
+        rate:
+          type: number
+          description: Tipo de cambio utilizado
+          example: 3.84
+        currency:
+          $ref: '#/components/schemas/ExchangeCurrency'
+        amount:
+          type: number
+          description: Importe en la moneda destino
+          example: 499.13
+
+    ExchangeCurrency:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Moneda destino de la C/V
+          example: PEN

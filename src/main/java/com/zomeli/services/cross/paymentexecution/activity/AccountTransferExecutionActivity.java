@@ -1,5 +1,6 @@
 package com.zomeli.services.cross.paymentexecution.activity;
 
+import com.zomeli.services.cross.paymentexecution.model.generate.MoneyTransferRequest;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
@@ -7,16 +8,15 @@ import io.temporal.activity.ActivityMethod;
 public interface AccountTransferExecutionActivity {
 
   @ActivityMethod
-  String withdraw(String accountId, String referenceId, double amount);
+  String withdraw(String uuid, MoneyTransferRequest transferRequest);
 
   @ActivityMethod
-  String deposit(String accountId, String referenceId, double amount);
-
-
-  @ActivityMethod
-  String withdrawExtortion(String accountId, String referenceId, double amount);
+  String deposit(String uuid, MoneyTransferRequest transferRequest);
 
   @ActivityMethod
-  String depositExtortion(String accountId, String referenceId, double amount);
+  String withdrawExtortion(String uuid, MoneyTransferRequest transferRequest);
+
+  @ActivityMethod
+  String depositExtortion(String uuid, MoneyTransferRequest transferRequest);
 
 }

@@ -1,7 +1,7 @@
 package com.zomeli.services.cross.paymentexecution.activity;
 
+import com.zomeli.services.cross.paymentexecution.model.generate.MoneyTransferRequest;
 import com.zomeli.services.cross.paymentexecution.proxy.MockClient;
-import com.zomeli.services.cross.paymentexecution.entity.TransferDto;
 import io.quarkus.temporal.runtime.annotations.TemporalActivity;
 import javax.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -21,9 +21,10 @@ public class AccountTransferExecutionActivityImpl implements AccountTransferExec
 //    ServiceClient clientService;
 
   @Override
-  public String withdraw(String accountId, String referenceId, double amount) {
-    MDC.put("request.id", referenceId);
-    String data = mockClient.getMock(TransferDto.builder()
+  public String withdraw(String uuid, MoneyTransferRequest transferRequest) {
+    MDC.put("request.id", uuid);
+
+    String data = mockClient.getMock(MoneyTransferRequest.builder()
 //        .account("194333132")
         .build());
 
@@ -32,7 +33,7 @@ public class AccountTransferExecutionActivityImpl implements AccountTransferExec
   }
 
   @Override
-  public String deposit(String accountId, String referenceId, double amount) {
+  public String deposit(String uuid, MoneyTransferRequest transferRequest) {
 
 //    String data = clientService.getPokemon("pikachu");
 //    log.info(data);
@@ -40,12 +41,12 @@ public class AccountTransferExecutionActivityImpl implements AccountTransferExec
   }
 
   @Override
-  public String withdrawExtortion(String accountId, String referenceId, double amount) {
+  public String withdrawExtortion(String uuid, MoneyTransferRequest transferRequest) {
     return "withdrawExtortion";
   }
 
   @Override
-  public String depositExtortion(String accountId, String referenceId, double amount) {
+  public String depositExtortion(String uuid, MoneyTransferRequest transferRequest) {
     return "depositExtortion";
   }
 }
